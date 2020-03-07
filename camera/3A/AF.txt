@@ -1,0 +1,39 @@
+AFnode是AF调用流程的开始，所以我们根据AFNode的7个接口来讲解AF数据调用和处理的流程。
+一、AutoFocusNode::Create（）：创建AFnode
+    调用时机:configure_stream时，创建realtimesession,创建realtimepipeline时，依次创建各个node。
+    主要工作:
+        1.CAFStatsProcessor::Create:创建AF处理器
+        2.pAutoFocusNode->m_pStatscallback.pAFCCallback:填充chi中的AF算法(如果有的话)
+        3.AutoFocusNode->m_pStatscallback.pPDCallback :填充chi中的PD算法(如果有的话)
+
+二、processingNodeInitialize（）：处理node初始化
+   调用时机:创建完当前node后立即掉camxnode的initlize方法,进而调到此处
+   主要工作:
+        1.node内部保存了chicontex
+三、ProcessingNodeFinalizeInitialization（）：node初始化完成
+   调用时机：session创建完pipeline，对pipeline进行初始化时。
+   主要工作:
+        1.设置每个inputport的buffer增量，这个值等于最大的pipelinedelay减1
+四、FinalizeBufferProperties（）：完成buffer属性处理
+   调用时机:session创建完pipeline，对pipeline进行初始化时，ProcessingNodeFinalizeInitialization之后。
+   主要工作:
+        1.主要判断PDAF是否可用
+五、PostPipelineCreate（）：后期pipeline创建工作(各个node完成最后的准备工作)
+    调用时机:session创建完pipeline，对pipeline进行初始化时,FinalizeBufferProperties之后。
+    主要工作:
+        1.判断是否使能AFstat功能
+        2.new CAFIOUtil(专门负责操作AF参数数据)
+        3.AFStatsProcessor内部维护CAFIOUtil
+        4.new CAFAlgorithmHandler(专门维护AF算法)
+        5.AFStatsProcessor内部维护CAFAlgorithmHandler
+        6.m_pStatscallback.pAFCCallback->pfnSetAlgoInterface(把共用的一些stat方法传给chi中AF自定义算法中)
+        7.m_pStatscallback.pPDCallback->pfnSetAlgoInterface(把共用的一些stat方法传给chi中PD自定义算法中)
+        8.AFStatsProcesso->Initialize
+        9.InitializeMultiStats:如果是双摄，创建双摄stat控制处理器
+六、ExecuteProcessRequest（）：处理数据
+    调用时机：当request被camxsession拿到后，为每个node设置dependcy,当某个node的dependcy满足后，触发camxnode的proecessrequest方法，               进而触发某个Node的此方法。 
+    主要工作:
+        1.m_pAFStatsProcessor->ExecuteProcessRequest经过一系列判断预处理后，执行此方法
+                1.m_pAFAlgorithm->AFProcess:调用到算法的AFProcess方法中。
+七、Destroy（）：销毁
+    调用时机：pipeline销毁时
