@@ -1,0 +1,11 @@
+1.Create():创建node
+    1.new出node对象
+2.ProcessingNodeInitialize：初始化
+    1.SetInputPortBufferDelta：设置输入prot的buffer增量
+3.ProcessingNodeFinalizeInitialization：完成初始化
+    1.new出各个stat输出控制器
+4.ExecuteProcessRequest：处理请求
+    1.PrepareStatsProcessRequestData：准备处理数据
+    2.m_pStatsParser->Parse:硬件解析器数据
+5.Destroy（）：销毁
+

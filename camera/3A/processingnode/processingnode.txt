@@ -1,0 +1,23 @@
+1.Create():创建Node
+    1.new出node对象
+    2.StatsProcessorManager::Create（）：创建stats工作调度管理器
+    3.m_statsInitializeData：填充初始化数据供后续使用
+2.ProcessingNodeInitialize（）：初始化
+    1.pCreateInputData->pChiContext：Node内部为话chicontext
+    2.m_bufferOffset = GetStaticSettings()->maxPipelineDelay:设置bufferoffset后续使用
+3.ProcessingNodeFinalizeInitialization（）：完成初始化
+    1.m_statsInitializeData:填充初始化数据供后续使用
+    2.SetInputPortBufferDelta:设置输入prot的buffe增量(根据前面获取的bufferoffset)
+4.NotifyJobProcessRequestDone():被其他的stat线程通知此node工作已完成
+    1.ProcessMetadataDone
+    2.ProcessRequestIdDone
+5.PostPipelineCreate（）：pipeline创建后期工作
+    1.m_statsInitializeData:填充初始化数据供后续使用
+    2.m_statsInitializeData.initializecallback.pAECCallback->pfnSetAlgoInterface(&chiAlgoInterface):给AE算法内部注册公共函数
+    3.m_statsInitializeData.initializecallback.pAWBCallback->pfnSetAlgoInterface(&chiAlgoInterface):给AWB算法内部注册公共函数
+    4.m_pStatsProcessorManager->Initialize(&m_statsInitializeData):stats工作调度管理器初始化
+    5.InitializeMultiStats：初始化多摄stats处理器(用于实现3A同步)
+6.ExecuteProcessRequest():处理请求
+    1.PrepareStatsProcessRequestData：准备处理的数据
+    2._pStatsProcessorManager->OnProcessRequest：当所有dependency都满足的时候，stats工作调度器启动各个模块处理
+7.Destroy():销毁

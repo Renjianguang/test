@@ -1,0 +1,15 @@
+这个类主要是为processingnode服务。
+1.Create：创建
+    1.NEW StatsProcessorManager new出对象
+    2.CreateStatsProcessors()：真正创建动作,创建出各个模块处理器
+        a.CAECStatsProcessor::Create
+        b.CAWBStatsProcessor::Create
+        c.CAFDStatsProcessor::Create
+        d.CASDStatsProcessor::Create
+2.Initialize：初始化
+    1.初始化四个模块
+3.OnProcessRequest：开始处理
+    1.四个模块执行处理操作
+    2.如果3A收敛完成，收敛状态值置0，否则++
+4.Destroy：销毁
+    销毁所有处理器

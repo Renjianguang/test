@@ -1,0 +1,29 @@
+aec处理器由工作调度管理器调用
+1.Create：创建
+    1.NEW CAECStatsProcessor()：new出对象
+2.Initialize：初始化
+    1.CAECEngine::Create(m_pfnCreate, &m_algoInput.statsSession, &m_algoInput.cameraInfo)：创建核心算法实例
+    2.m_pAECEngine->HandleCommand(AECCommand::StartDriver, &inputParam, &outputParam)：开始驱动引擎
+    3.m_pAECEngine->HandleCommand(AECCommand::SetChromatix, &inputParam, &outputParam)：设置chromatix数据给驱动
+    4.m_pAECEngine->HandleCommand(AECCommand::SetPipelineDelay, &inputParam, &outputParam)：设置pipeline delay
+    5.m_pAECEngine->HandleCommand(AECCommand::SetDCCalibrationData, &inputParam, &outputParam):设置双摄校准数据
+    6.m_pAECEngine->HandleCommand(AECCommand::ProcessCropWindow, &inputParam, &outputParam)：处理裁剪
+    7.GetHardwareInfo：获取硬件信息
+    8.m_pAECEngine->HandleCommand(AECCommand::ProcessHardwareInfo, &inputParam, &outputParam)：处理硬件信息
+    9.VendorTagListAllocation：获取vendortag
+         m_pAECEngine->HandleCommand(AECCommand::GetPubVendorTagFromAlgo, &inputParam, &outputParam)：从算法中获取tag
+    10.PublishPreRequestOutput:公布预处理的输出数据
+        m_pAECEngine->HandleCommand(AECCommand::StartStreaming, &inputParam, &outputParam)：开流
+3.ExecuteProcessRequest：处理数据
+    1.ReadHALAECParam:读取HAL中的AE数据
+    2.SetAlgoChromatix:设置tunning数据给算法
+        m_pAECEngine->HandleCommand(AECCommand::SetChromatix, &inputParam, &outputParam)
+    3.m_pAECEngine->HandleCommand(AECCommand::GetLEDCalibrationConfig, &inputParam, &m_outputParam):获取LED等校准配置
+    4.m_pAECEngine->HandleCommand(AECCommand::LoadLEDCalibrationData, &inputParam, &m_outputParam):加载LED校准数据
+    5.SetAlgoSetParams(&m_HALParam):设置输入参数给算法
+        1.m_pAECEngine->HandleCommand(AECCommand::SetPerFrameControlParam, &inputParam, &outputParam)：设置每帧的控制参数
+        2.m_pAECEngine->HandleCommand(AECCommand::SetNodesUpdate, &inputParam, &outputParam)：从其他模式更新状态
+        3.m_pAECEngine->HandleCommand(AECCommand::ProcessCropWindow, &inputParam, &outputParam)：设置stat的区域
+    6.m_pAECEngine->HandleCommand(AECCommand::ProcessStats, &inputParam, &m_outputParam):处理输入数据
+    7.PublishCrossProperty：为不同的pipeline公布属性
+    8.PublishMetadata：公布处理完的mata
