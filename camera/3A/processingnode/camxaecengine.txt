@@ -1,0 +1,41 @@
+1.Create():创建aecengine
+    1.NEW CAECEngine():创建aecEngine对象
+        1.m_AECLastState 初始化上一次AEC的收敛状态
+        2.初始化算法操作模式
+    2.Initialize：初始化
+        1.(*pfnCreate)(&createParamList, &m_pAECAlgorithm):创建算法实例
+        2.初始哈AEC HAL参数
+        3.初始化预闪的AF,AWB的最大等待帧数
+2.HandleCommand：处理命令
+    1.执行传入的命令
+    2.AECStateMachine，如果执行成功，更改AE状态机状态
+        1.修改当前状态
+        2.如果当前状态是从收敛变为收敛完成，则计算收敛时间
+        3.如果当前的状态是开始收敛，则保存当前开始收敛的时间
+    3.如果AE状态机是刚执行完处理命令，则要更新输出数据
+        1.IsPreflashComplete：判断当前预闪是否完成
+        2.如果预闪完成，我们要获取主闪的拍照gain值并恢复算法到正常运行
+          RestoreStreaming(pOutput)
+                1.将算法恢复回预览模式
+                2.从算法中获取最后的预览gain,此gain将用于预闪关闭后下一帧的gain
+                StartStreaming：重新开始预览
+        3.UpdateAEEngineOutputResults(pOutput):更新AE输出结果
+            1.UpdateAEStateBasedOnAlgo：更新AE状态，当AE在收敛状态时，如果算法设置更新了状态，则更改AE状态为收敛完成
+            2.重新设置闪光灯触发标志为未触发
+            3.设置AE引擎状态到输出
+        4.如果预闪完成，恢复AE状态，包括当前AE状态，预闪状态，预闪触发标志，拍照指示标志
+3.命令执行的流程
+    1.StartDriver：
+        1.OverrideAlgoSetting：设置所有的setting给算法
+             m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将一些控制setting设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    2.SetChromatix：设置渲染参数
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将一些tunning数据设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    3.SetPipelineDelay:设置pipeline延迟
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将pipeline delay数据设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    4.SetDCCalibrationData
+
