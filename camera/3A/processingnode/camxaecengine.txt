@@ -37,5 +37,49 @@
         1.SetSingleParamToAlgorithm：设置参数给算法
             m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将pipeline delay数据设置给算法
         2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
-    4.SetDCCalibrationData
+    4.SetDCCalibrationData:设置双摄校准数据
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将校准数据设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    5.ProcessCropWindow：处理裁剪窗口
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList：将裁剪区域设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    6.ProcessHardwareInfo：处理硬件硬件信息
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList：将sensor信息设置给算法
+        2.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    7.GetPubVendorTagFromAlgo：从算法中获取公布的供应商tag
+        1.GetParamForPubVendorTag：从公布的tag中获取参数
+        2.GetParamFromAlgorithm：从算法中获取参数
+        3.m_pAECAlgorithm->AECGetParam(m_pAECAlgorithm, &getParam)：从算法中获取参数
+        4.AE状态不变:m_AECState:Inactive m_AECLastState:Inactive
+    8.StartStreaming：启流
+        1.SetOperationModeToAlgo：设置操作模式给算法
+            SetSingleParamToAlgorithm：设置参数给算法
+                m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将操作模式设置给算法
+        2.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将感光度信息设置给算法
+        3.GetAlgoParamForFrameControlType：为帧控制类型获取算法参数
+            a.GetParamFromAlgorithm
+                m_pAECAlgorithm->AECGetParam(m_pAECAlgorithm, &getParam):获取参数
+            b.CopyExposureSetToExposureData:将算法的曝光数据复制到AE引擎曝光数据中
+            c.GetParamFromAlgorithm:查询BG状态配置
+        4.AE状态由Inactive变为converging:m_AECState:Converging m_AECLastState:Converging
+        5.记录开始收敛的时间
+    9.SetChromatix：设置渲染参数
+        1.SetSingleParamToAlgorithm：设置参数给算法
+            m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：将一些tunning数据设置给算法
+        2.AECStateMachineConvergedAndConverging:不改变AE状态
+        3.AE状态不变:m_AECState:converging m_AECLastState:converging
+    10.GetLEDCalibrationConfig:获取LED校准数据
+        1.SetSingleParamToAlgorithm：设置闪光灯检测模式到算法
+        2.GetParamFromAlgorithm：如果校准数据模式，获取校准数据的配置信息
+        3.AE状态不变:m_AECState:converging m_AECLastState:converging
+    11.LoadLEDCalibrationData：加载LED校准数据
+        1.SetSingleParamToAlgorithm：设置校准数据给算法
+        2.AE状态不变:m_AECState:converging m_AECLastState:converging
+    12.SetPerFrameControlParam：设置每帧的控制参数
+        1.m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：获取各个参数并设置到算法中
+        2.
 
