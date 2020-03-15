@@ -81,5 +81,39 @@
         2.AE状态不变:m_AECState:converging m_AECLastState:converging
     12.SetPerFrameControlParam：设置每帧的控制参数
         1.m_pAECAlgorithm->AECSetParam(m_pAECAlgorithm, &setParamList)：获取各个参数并设置到算法中
-        2.
-
+        2.AECStateMachineConvergedAndConverging:设置AE状态机状态：
+            获取当前的算法模式：
+                a.如果是手动模式：
+                    1.设置AE状态机的flash状态机的触发器(AE/LEDAF)
+                    2.设置AE状态机为flash模式
+                    3.设置AE状态机的预闪状态m_AECPreFlashState为预闪开始状态
+                b.如果不是手动模式：
+                    1.IsHalPreFlashSettingEnabled：检查HAL层是否有设置将预闪开启
+                        此方法里，主要通过HAL层的AEmode值来判断(包括 always on/AUTO/off&&manual/ON)
+                    2.设置AE状态机的flash状态机的触发器(AE/LEDAF)
+                    3.设置AE状态机为flash模式
+                    4.设置AE状态机的预闪状态m_AECPreFlashState为预闪开始状态
+        3.AE状态改变:m_AECState:flash m_AECLastState:flash
+    13.SetNodesUpdate:设置来自内部其他组建的参数更新
+        1.SetSingleParamToAlgorithm：此处主要是将AWB组件的参数更新到算法中
+        2.AECStateMachineFlash:根据预闪状态来处理
+            AECStateMachineFlashStart：预闪开始，AE状态不变
+        AE状态不变:m_AECState:flash m_AECLastState:flash
+    14.ProcessCropWindow：设置stat作用区域
+        1.SetSingleParamToAlgorithm：将stat区域设置给算法
+        2.AE状态不变:m_AECState:flash m_AECLastState:flash
+    15.ProcessStats：处理stats数据（核心）
+        1.判断capture请求(如果是持续捕获或手动捕获则为真)
+            a.如果成立：
+                1.如果是flash拍照,获取各项算法输出参数
+                2.如果是普通拍照，ProcessStatsAlgo：处理
+                    a.配置算法处理参数
+                    b.m_pAECAlgorithm->AECProcess:算法处理
+                    c.SetOperationModeToAlgo,设置预闪操作模式给算法
+                    d.GetAlgoParamForMultiCamera:获取多摄的算法参数，m_pAECAlgorithm->AECGetParam
+                3.在zsl模式时，snapshot的AE数据来自预览，在HDR模式时，snapshot的AE数据来自snapshot
+                    如果需要从snapshot取AE数据则:
+                       ProcessStatsCaptureRequest:处理统计捕获请求数据,m_pAECAlgorithm->AECGetParam 获取数据
+            b.如果不成立:
+                1.判断如果主闪后不跳帧:
+                2.如果主闪后跳帧，则意味着现在还在闪光完成前的状态，此时我们不做处理，还是用之前相同的数据

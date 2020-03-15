@@ -1,0 +1,16 @@
+awb处理器由工作调度管理器调用:
+1.create:创建
+    1.NEW CAWBStatsProcessor():new出对象
+2.Initialize:初始化
+    1.NEW CAWBIOUtil:创建AWB输入输出方法类
+    2.(*m_pfnCreate)(&createParamList, &m_pAWBAlgorithm)：执行算法入口函数
+    3.SetOperationModetoAlgo：设置操作模式给算法。m_pAWBAlgorithm->AWBSetParam
+    4.PublishPreRequestOutput，公布预请求的输出：m_pAWBAlgorithm->AWBGetParam
+3.ExecuteProcessRequest：处理数据
+    1.m_pAWBAlgorithm->AWBSetParam：设置AWB输入参数
+    2.m_pAWBAlgorithm->AWBProcess:算法处理
+    3.m_pAWBAlgorithm->AWBGetParam:获取最后输出参数
+    4.m_pAWBAlgorithm->AWBGetParam：获取当前的flash状态
+    5.m_pAWBAlgorithm->AWBGetParam：获取flash的输出状态
+    6.m_pAWBIOUtil->PublishMetadata:公布mata信息
+    7.m_pAWBAlgorithm->AWBGetParam:获取每个camera的信息   

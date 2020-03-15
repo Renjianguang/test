@@ -1,0 +1,12 @@
+awb处理器由工作调度管理器调用:
+1.NEW CASDStatsProcessor:new出对象
+2.Initialize：初始化
+    1.(*pFNCreateASD)(&createParamList, &m_pCHIASDAlgorithm)：执行算法入口函数
+    2.SendAlgoSetParam：给算法设置初始化参数
+3.ExecuteProcessRequest：处理数据
+    1.ParseISPStats：解析ISP统计数据
+    2.GetAlgorithmInput：获取算法的输入参数
+    3.ProcessSetParams:设置输入参数给算法
+    4.m_pCHIASDAlgorithm->ASDProcess：算法处理
+    5.PublishMetadata：公布处理完的mata信息
+

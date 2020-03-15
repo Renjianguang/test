@@ -1,0 +1,17 @@
+afd处理器由工作调度管理器调用:
+1.create:创建
+    1.NEW CAFDStatsProcessor:new出对象
+2.Initialize:初始化
+    1.(*pAFD)(&createParamList, &m_pCHIAFDAlgorithm):执行afd算法的入口函数
+    2.NEW CAFDIOHandler():new出处理AFD输入输出的类
+    3.m_pAFDIOHandler->Initialize:初始化
+3.ExecuteProcessRequest：处理数据
+    1.GetRSStatsFromAlgo()：从算法中获取RS状态
+    2.ReadHALAFDParam：读取hal设置的参数
+    3.PrepareInputParams:准备输入的参数
+    4.ProcessSetParams：给算法设置参数
+        m_pCHIAFDAlgorithm->AFDSetParam
+    5.m_pCHIAFDAlgorithm->AFDProcess:开始算法处理
+    6.m_pAFDIOHandler->PublishOutput：公布处理结果
+                
+

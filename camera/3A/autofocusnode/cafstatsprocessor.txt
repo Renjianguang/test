@@ -1,0 +1,20 @@
+af处理器由afnode调用
+1.Create:创建
+    1.NEW CAFStatsProcessor()：new出对象
+2.SetAFPDAFInformation：设置PDAF信息
+3.SetAFIOUtil：处理器内部维护AF输入输出处理器
+3.SetAFAlgorithmHandler：设置AF算法
+5.Initialize:初始化
+    1.InitializeCameraInfo：初始化carmea信息
+    2.UpdateAFSettings：更新AFsetting信息
+    3.m_pAFAlgorithmHandler->CreateAlgorithm：执行算法入口函数
+    4.SetAFAlgoSettings：将setting设置给算法
+    5.SetDefaultConfig：设置默认配置
+6.ExecuteProcessRequest:处理数据
+    1.m_pAFIOUtil->ParsePDStats:解析PDstat数据
+    2.PrepareInputParams:准备输入参数
+    3.ProcessSetParams：将输入参数给算法
+    4.m_pAFAlgorithm->AFProcess:算法处理
+    5.BuildHALOutput:生成hal输出数据
+    6.ProcessUpdatePeerFocusInfo:对于多摄，更新每个camera的对焦信息
+    7.m_pAFIOUtil->PublishOutput:公布处理数据
