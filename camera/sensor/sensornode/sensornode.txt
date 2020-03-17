@@ -1,0 +1,72 @@
+sensornode和其他Node一样，拥有统一的node接口，总共8个
+1.Create:创建Node
+    1.NEW SensorNode:new出实例
+    2.m_pPDCallback = pCreateInputData->pPDLibCallbacks：如果有Pd算法的话，内部维护
+2.ProcessingNodeInitialize：node初始化，没做太多事
+3.ProcessingNodeFinalizeInitialization：初始化完成工作
+    1.LoadPDlibrary：如果有PDAF库的话，加载
+    2.RegisterJobFamily(SensorThreadJobCallback：注册2个回调线程：家族线程和子模块线程
+        SensorThreadJobCallback：
+    3.CreateSensorStateSignals：创建各种sensor统计信号量
+    4.InitializeCmdBufferManagerList：初始化命令buffer管理列表
+    5.NEW SensorPostJob：new一个ois处理工作类
+    6.SensorPostJobCommand::InitializeOIS  PostJob(m_hJobFamilySubModuleOISHandle：通知子模块线程做ois初始化工作
+        1.pSensorNode->CreateOISSubmodule()：创建ois子模块
+            1.CreatePerFrameUpdateOISResources：创建每帧更新OIS资源
+                1.CreateOisResources:创建ois资源
+                    1.CreateCmdBufferManager：创建各种cmdbuffer信息管理对象
+                    2.OIS::Create：创建OIS实例
+    7.AcquireDevice：获取设备
+        CSLAcquireDevice：进入CSL层，获取sensordevice
+    8.SensorPostJobCommand::InitializeSensor  PostJob(m_hJobFamilyHandle:通知家族线程和处理sensor初始化工作
+        LoadSensorInitConfigCmd：加载sensor初始化命令
+            1.CreateAndSubmitCommand(initializeCmdSize, I2CRegSettingType::Init:初始化I2C
+                1.SensorData->CreateI2CCmd:c创建I2C命令
+                2.m_pConfigCmdBuffer->CommitCommands()：提交命令
+                3.m_pConfigCmdBuffer->SetRequestId:设置请求ID
+                4.m_pConfigPacket->SetOpcode:设置操作方法
+                5.m_pConfigPacket->AddCmdBufferReference：增加命令buffer的引用计数
+                6.m_pConfigPacket->CommitPacket()：提交命令包
+                7.m_pHwContext->Submit：硬件递交包
+                8.m_pConfigPacketManager->Recycle:回收包
+            2.后续AWB,LSC执行同样操作
+4.FinalizeBufferProperties：完成buffer属性配置
+5.PostPipelineCreate:pipeline创建的最后工作
+    1.SensorPostJobCommand::ConfigureSensor PostJob(m_hJobFamilyHandle 通知线程调用配置sensor的工作
+        1.LoadSensorConfigCmds：加载sensor配置命令
+            CreateAndSubmitCommand：将各种I2C命令创建并提交
+    2.SensorPostJobCommand::SubModulesCreate postJob(m_hJobFamilyHandle 在线程中创建子模块
+        1.CreateSensorSubmodules：创建sensor子模块
+            1.CreateSubModules：创建子模块
+                1.CSIPHYSubmodule::Create：创建csiphy模块       
+                2.AddCSLDeviceHandle：加到csl硬件管理中
+            2.CreatePerFrameUpdateResources：创建每帧的更新资源
+                1.CreateActuatorResources：创建电机资源
+                    CreateCmdBufferManager：创建各种命令包
+                2.当没有ois线程优化时此处需要创建ois
+                3.CreateFlashResources：创建闪光灯资源
+                    1.CreateCmdBufferManager:创建各种命令包
+                    2.Flash::Create：创建flash
+            3.GetInitialCameraInfo:获取初始化的camera信息
+            4.Actuator::Create：创建电机    
+6.OnStreamOn:起流：
+    1.UpdateStartupExposureSettings：更新起始曝光设置
+        1.UpdateSensorExposure：更新sensor曝光
+        2.PrepareSensorUpdate：准备sensor的更新数据
+            1.CalculateExposure：计算曝光
+            2.FillExposureArray:填充曝光数组
+        3.CreateAndSubmitCommand：提交AEC处理命令
+7.NotifyCSLMessage：通知csl层消息，主要是从csl获取某帧的时间戳
+    GetExposureStartTime:获取曝光开始时间
+8.ExecuteProcessRequest：
+    1.InitializeMultiCameraInfo：初始化多摄camera信息
+    2.SetDependencies:设置依赖项
+    3.PrepareSensorUpdate准备sensor的更新数据
+    4.ApplySensorUpdate：应用sensor的更新
+        Submit：将各种命令递交硬件
+    5.PublishPerFrameSensorMetaData:公布每帧的sensormata信息
+    6.m_pFlash->ExecuteProcessRequest：执行flash的处理请求
+    7.m_pOis->ExecuteProcessRequest：执行ois的处理请求
+    8.PublishSensorProperties：公布sensor属性
+
+

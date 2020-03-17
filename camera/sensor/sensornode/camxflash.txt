@@ -1,0 +1,20 @@
+控制闪光灯的类，对外的接口主要有sensornode调用
+1.Create:创建：
+    1.NEW Flash：new出flash对象
+    2.pFlash->Initialize：初始化
+        1.CSLAcquireDevice：请求csl设备
+        2.CreateInitializePacket：创建并递交初始化命令包
+2.ExecuteProcessRequest：处理请求
+    1.HandleTorch：处理手电筒：
+        1.Fire：开光手电筒
+    2.如果开启了闪光灯：
+        1.如果是预闪：获取当前预闪值
+        2.如果是主闪;
+            1.获取当前的主闪值
+            2.HandleCalibarationFlash：计算闪光灯
+                根据当前计算的闪光灯状态判断下一步操作
+            3.HandlePreFlash：处理预闪
+                1.根据预闪状态判断是否需要主闪
+            4.HandleMainFlash：处理主闪
+                1.如果需要主闪，开始主闪
+    3.UpdateFlashStateMetadata：更新flash信息
