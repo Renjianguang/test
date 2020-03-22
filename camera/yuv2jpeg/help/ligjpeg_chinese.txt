@@ -278,7 +278,11 @@
 		2.libjpeg.so.{version}：libjpeg的动态库  ---libjpeg.so是它的符号链接
 		3.libturbojpeg.a： libturbojpeg的静态库
 		4.libturbojpeg.so.0.2.0: libturbojpeg的动态库 ---libturbojpeg.so是他的符号链接
-	example.txt:libjpeg使用案例
+	编译完成之后，可以使用make test测试生成的库的各项功能是否正常。
+
+
+example.txt:libjpeg使用案例：可以与libjpeg文档结合使用	
+		
 		
 	
 

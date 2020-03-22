@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11308ebf-2c8a-497e-b0d7-a8b3589e12d1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/day2/first_func.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/使用模块.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/函数.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/函数参数.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/模块.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/调用.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2/高级数据类型.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../camera/3A/processingnode/caecstatsprocessor.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../camera/3A/processingnode/camxaecengine.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,11 +15,11 @@
     <session id="-1868915917">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.16" value="1" />
-          <entry key="project.open.time.27" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.open.time.27" value="2" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -55,8 +49,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/day2/高级数据类型.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="20" column="15" lean-forward="true" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
+            <state relative-caret-position="211">
+              <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
             </state>
           </provider>
         </entry>
@@ -336,17 +330,11 @@
     </configuration>
     <list>
       <item itemvalue="Python.first_func" />
-      <item itemvalue="Python.函数参数" />
-      <item itemvalue="Python.调用" />
-      <item itemvalue="Python.使用模块" />
       <item itemvalue="Python.高级数据类型" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.高级数据类型" />
-        <item itemvalue="Python.使用模块" />
-        <item itemvalue="Python.调用" />
-        <item itemvalue="Python.函数参数" />
         <item itemvalue="Python.first_func" />
       </list>
     </recent_temporary>
@@ -435,13 +423,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/day2/循环.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/day2/循环.py" />
     <entry file="file://$PROJECT_DIR$/day2/nine.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -460,9 +442,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="3" column="11" lean-forward="true" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
-          <folding>
-            <marker date="1577522106592" expanded="true" signature="35:40" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -470,10 +449,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
           <caret line="11" selection-start-line="11" selection-end-line="11" />
-          <folding>
-            <marker date="1577523665000" expanded="true" signature="21:168" ph="..." />
-            <marker date="1577523665000" expanded="true" signature="70:146" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -481,9 +456,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="26" />
-          <folding>
-            <marker date="1577522336872" expanded="true" signature="27:32" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -491,10 +463,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="3" column="16" lean-forward="true" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
-          <folding>
-            <marker date="1577523664884" expanded="true" signature="12:32" ph="..." />
-            <marker date="1577523664884" expanded="true" signature="44:64" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -507,8 +475,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/day2/高级数据类型.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="20" column="15" lean-forward="true" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
+        <state relative-caret-position="211">
+          <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
         </state>
       </provider>
     </entry>
