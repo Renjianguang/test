@@ -1,0 +1,1 @@
+/usr/bin/cc -O3 -DNDEBUG  -rdynamic CMakeFiles/jpegtran.dir/__/jpegtran.c.o CMakeFiles/jpegtran.dir/__/cdjpeg.c.o CMakeFiles/jpegtran.dir/__/rdswitch.c.o CMakeFiles/jpegtran.dir/__/transupp.c.o  -o ../jpegtran -Wl,-rpath,/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master:::::::::::::: ../libjpeg.so.62.3.0 

@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/tjexample.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+errno.h
+-
+turbojpeg.h
+-
+
+turbojpeg.h
+

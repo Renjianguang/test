@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/jconfig.h
+
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/jinclude.h
+jconfig.h
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/jconfig.h
+stddef.h
+-
+stdlib.h
+-
+sys/types.h
+-
+stdio.h
+-
+strings.h
+-
+string.h
+-
+
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/rdjpgcom.c
+jinclude.h
+/home/ren/github/test/camera/yuv2jpeg/libjpeg-turbo-master/jinclude.h
+locale.h
+-
+ctype.h
+-
+fcntl.h
+-
+io.h
+-
+SIOUX.h
+-
+console.h
+-
+console.h
+-
+

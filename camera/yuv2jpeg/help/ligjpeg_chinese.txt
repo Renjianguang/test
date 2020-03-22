@@ -1,0 +1,299 @@
+目录
+
+-----------------
+
+
+
+一、概述：
+
+ 1.库提供的函数接口
+
+ 2.典型用法概述
+
+二、基本库用法：
+
+ 1.数据格式
+
+ 2.压缩详细信息
+
+ 3.解压缩详细信息
+
+ 4.部分图像解压
+
+ 5.使用机制：包括文件、链接等
+
+三、高级功能：
+
+ 1.压缩参数选择
+
+ 2.解压参数选择
+
+ 3.特殊颜色空间
+
+ 4.错误处理
+
+ 5.压缩数据处理（源和目标管理器）
+
+ 6.I/O暂停
+
+ 7.渐进式JPEG支持
+
+ 8.缓冲图像模式
+
+ 9.简化数据流和多个图像
+
+ 10.特殊标记
+
+ 11.ICC配置文件
+
+ 12.原始（降采样）图像数据
+
+ 13.真实原始数据：DCT系数
+
+ 14.进度监测
+
+ 15.内存管理
+
+ 16.内存使用
+
+ 17.库编译时选项
+
+ 18.可移植性考虑
+
+概述：
+ IJG JPEG库提供C代码来读写JPEG压缩图像文件。应用程序用一种简单的未压缩的图像格式，一次接受或者提供一行未压缩的图像数据。颜色转换和后处理等工作细节都有库内部完成。
+ jpeg库包含了大量的与JPEG标准不涵盖的函数代码，但这些代码对JPEG的应用是必需的。这些函数代码在JPEG压缩之前对图像进行预处理，或者在JPEG解压之后对图像进行后处理。包括颜色空间转换，上、下采样，颜色量化等。应用程序可以指定要提供的图像的格式或者要接受的图像的格式来间接的使用到这些代码。例如，如果请求颜色映射输出，则此库会自动调用色彩量化。
+ 在JPEG处理中，质量和速度之间需要权衡，在解压缩后处理中更是如此。解压库提供了多种实现，涵盖了大多数有用的权衡，从非常高的质量到快速预览操作。在压缩方面，我们通常没有提供低质量的选择，因为压缩通常不那么关键。应该理解的是低质量模式可能无法满足JPEG标准的精度要求；尽管如此，它们对观众很有用。
+ JPEG压缩操作的大致流程：
+   1.分配并初始化一个JPEG压缩对象; 
+   2.指定压缩数据的目标(例如，文件);
+   3.设置压缩参数，包括图像大小和颜色空间;
+   4.jpeg_start_compress(...):开始压缩;
+   5.while(扫描还未处理过的每一行){
+	jpeg_write_scanlines(...):一行一行地写入	
+   }
+   6.jpeg_finish_compress(...)：压缩完成;
+   7.释放JPEG压缩对象的资源
+ JPEG压缩对象里保存着JPEG库的参数和工作状态。我们将压缩对象的创建和销毁与图像开始/结束压缩分离。同一个对象，可以进行一系列的图像压缩操作。这样，图像序列可以重复使用相同的参数设置。
+ 要压缩的图像数据从内存缓冲区提供给jpeg_write_scanlines函数。如果应用程序要执行文件到文件的压缩，则应用程序要先从源文件读取数据到buffer。
+ 库通过“data destination manager”来发送压缩后的数据，此管理器通常将数据写入文件。当然，应用程序可以使用自定义的管理器来执行其他凑操作。
+
+ 同样的，JPEG解压的大致流程如下：
+   1.分配并初始化JPEG解压缩对象;
+   2.指定压缩数据的源（例如，文件）
+   3.调用jpeg_read_header（）获取图像信息;
+   4.设置解压参数
+   5.jpeg_start_decompress(...):开始解压;
+   6.while(扫描还未处理过的每一行){
+	jpeg_read_scanlines(...):一行一行地读出
+   }
+   7.jpeg_finish_decompress(...):解压完成;
+   8.释放JPEG解压对象
+ JPEG解压和JPEG压缩流程大致相同，但是多了一个获取图像信息的步骤。这一步是很重要的，因为我们可以从中获取我们需要的图像尺寸，颜色看空间等信息。
+ 解压库通过调用数据源管理器来获取压缩数据。此管理器从文件中读取数据。解压后的数据被放到内存的buffer中，此buffer会传递给jpeg_read_scanlines函数。
+ 可以通过调用jpeg_abort（）中止不完整的压缩或解压缩操作；或者，如果不需要保留jpeg对象，只需通过调用jpeg_destroy（）将其释放。 
+ JPEG压缩和解压缩对象是两种独立的结构类型。但他们有一些共有的方法，例如jpeg_destroy。
+ JPEG库没有静态变量：所有状态都在压缩或解压缩对象中。因此，可以使用多个JPEG对象同时处理多个压缩和解压缩操作。
+
+
+
+二、基本的库用法：
+
+1.数据格式：
+  标准输入图像格式是像素的矩形阵列，每个像素具有相同数量的“分量”或“采样”值（颜色通道）。必须指定有多少个分量以及分量的颜色空间解释。大多数应用程序使用RGB数据（每像素三个分量）或灰度数据（每像素一个分量）。请注意，RGB数据是每像素三个样本，灰度只有一个。相当多的人忽略了这一点，使得他们的程序无法处理灰度级的JPEG文件。
+  没有针对颜色映射输入的设置。JPEG文件总是全彩色或全灰度（有时是另一种颜色空间，如CMYK）。通过将彩色映射图像展开为全色格式，可以将其馈入。但是JPEG通常不能很好地处理彩色映射的源数据，因为抖动的噪音。这将在JPEG常见问题解答和README.ijg文件中提到的其他参考资料中进行更详细的讨论。
+  像素由scanline存储，每个scanline从左到右。每个像素的分量值在行中相邻；例如，R、G、B、R、G、B、R、G、B、，。。。用于24位RGB颜色。每个scanline都是一个数据类型JSAMPLE的数组，通常是“unsigned char”，除非您已经更改了jmorecfg.h。（您也可以通过修改jmorecfg.h来更改R G B像素布局，例如B、G、R顺序。但在更改之前，请参阅该文件中列出的限制。）
+ 二维像素数组是由指向scanline开头的指针列表构成的，因此scanline不必在内存中物理上相邻。即使一次只处理一个scanline，也必须创建一个单元素指针数组以符合此结构。指向JStAMP行的指针是JSAMPROW的类型，指针数组的指针是JSAMPARRY类型。
+  库每次调用会接受或提供一个或多个完整的scanline。一次处理一行（一个scanline）。scanline总是从上到下进行处理。如果全部都在内存中，可以在一次调用中处理整个图像，但通常一次处理一个scanline最简单。
+  为了获得最佳的结果，应该为源数据指定压缩的精度，被BITS_IN_JSAMPLE指定(通常为8bit)。
+
+2.JPEG压缩详解：
+  (1).分配并初始化一个JPEG压缩对象
+	JPEG压缩对象是"struct jpeg_compress_struct"这个数据结构,(它还有一堆通过malloc（）分配的子结构，但应用程序不直接控制这些结构)。如果一个例程要执行整个 JPEG压缩序列，那么这个结构只能是调用例程中的一个局部变量。否则它可以是静态的，也可以从malloc（）分配。
+        您还需要一个表示JPEG错误处理程序的结构。库关心的部分是“struct jpeg_error_mgr”。如果您提供自己的错误处理程序，则通常需要将jpeg_error_mgr结构嵌入到更大的结构中；这将在“错误处理”下稍后讨论。现在我们假设您只是在使用默认的错误处理程序。默认错误处理程序将打印JPEG错误/警告消息在stderr上，如果发生致命错误，它将调用exit（）。  
+        您必须初始化错误处理程序结构，将指向它的指针存储到JPEG对象的“err”字段中，然后调用JPEG_create_compress（）初始化JPEG对象的其余部分。
+        此步骤的典型代码是：
+		struct jpeg_compress_struct cinfo;
+        	struct jpeg_error_mgr jerr;
+        	...
+       		cinfo.err = jpeg_std_error(&jerr);
+        	jpeg_create_compress(&cinfo);
+        jpeg-create-compress会分配少量内存，因此如果内存不足，它可能会失败。在这种情况下，它将通过错误处理程序退出；这就是必须首先初始化错误处理程序的原因。
+  (2).指定压缩数据的目标
+	如前所述，JPEG库将压缩数据传送到“data destination”模块。该库包括一个data destination模块，该模块知道如何写入stdio流。如果您想做其他事情，可以使用自己的目的地模块，如后文所述。
+	如果使用标准data destination模块，则必须事先打开目标stdio流。此步骤的典型代码如下：
+		FILE *outfile;
+        	...
+        	if ((outfile = fopen(filename, "wb")) == NULL) {
+            		fprintf(stderr, "can't open %s\n", filename);
+            		exit(1);
+        	}
+        	jpeg_stdio_dest(&cinfo, outfile);
+	警告：将二进制压缩数据原封不动地传递到输出文件是非常重要的。在非Unix系统上，stdio库可能执行换行转换或以其他方式损坏二进制数据。若要禁止此行为，可能需要使用“b”选项打开（如上所示），或者使用setmode（）或其他例程将stdio流置于二进制模式。请参阅cjpeg.c和djpeg.c，以获取在许多系统上工作的代码.
+	可以在设置其他参数（步骤3）之后选择data destination,不能在调用jpeg_start_compress（）和jpeg_finish_compress（）之间更改data destination。
+   (3).设置压缩参数，包括图像大小和颜色空间
+	必须通过在JPEG对象（cinfo结构）中设置以下字段来提供有关源图像的信息:
+		 image_width  		图像宽
+		 image_height  		图像高
+		 input_components	输入分量数(每个像素的采样数)
+		 in_color_space		源图像的色彩空间
+	JPEG支持在任意方向上1到64K像素的图像尺寸。输入颜色空间通常为RGB或灰度，并且相应地输入分量为3或1。（请参阅后面的“特殊颜色空间”，了解更多信息。）必须为in_color_space字段指定一个J_color_space枚举常量，通常是JCS_RGB或JCS_GRAYSCALE
+	JPEG有大量的压缩参数来决定图像的编码方式。大多数应用程序不需要知道所有这些参数。通过调用jpeg_set_defaults（），可以将所有参数设置为合理的默认值；然后，如果需要特定的值要改变，你可以在那之后改变。“压缩参数选择”部分介绍所有参数。
+	在调用jpeg_set_defaults（）之前，必须在in_color_space中正确设置，因为默认值取决于源图像的颜色空间。但是，在调用jpeg_start_compress（）。如果方便的话，多次调用jpeg_set_defaults（）是没有坏处的。
+	24位RGB源图像典型的参数设置流程：
+		cinfo.image_width = Width;      	图像宽
+        	cinfo.image_height = Height;		图像高	
+       	 	cinfo.input_components = 3;     	输入分量设置
+       	 	cinfo.in_color_space = JCS_RGB; 	指定颜色空间
+        	jpeg_set_defaults(&cinfo); 		设置其他默认的参数
+   (4).jpeg_start_compress(...); 开始压缩
+	建立data destination并设置所有必要的源图像信息和其他参数后，调用jpeg_start_compress（）开始压缩循环。这将初始化内部状态，分配工作存储，并发出JPEG数据流头的前几个字节。
+	典型代码：
+		jpeg_start_compress(&cinfo, TRUE);
+	“TRUE”参数确保将写入完整的JPEG交换数据流。这在大多数情况下是合适的。如果您认为可能需要使用缩写数据流，请阅读下面关于缩写数据流的部分。
+	调用jpeg_start_compress（）后，在完成压缩循环之前，不能更改jpeg对象的任何jpeg参数或其他字段。
+   (5). while (scan lines remain to be written)
+        	jpeg_write_scanlines(...);     循环写入每个scanlines
+	现在通过调用jpeg_write_scanlines（）一次或多次来写入所需的所有图像数据。您可以在每次调用中传递一个或多个scanlines，直到达到图像的总高度。在大多数应用中，一次只传递一条或几条扫描线是很方便的。
+	图像数据应按从上到下的扫描线顺序写入。如果源数据必须按从下到上的顺序读取，则可以使用JPEG库的虚拟数组机制来有效地反转数据。
+	该库维护到目前为止在JPEG对象的next_scanline字段中写入的扫描行数的计数。通常您可以将此变量用作循环计数器
+	此步骤的代码在很大程度上取决于存储源数据的方式。对于包含3字节RGB像素的全尺寸二维源数组，example.txt显示以下代码：
+		JSAMPROW row_pointer[1];      	定义一个指向单行的数组
+        	int row_stride;               	以buffer表示行的物理宽度
+
+        	row_stride = image_width * 3;   物理行宽度等于图像的宽 * 3
+        	while (cinfo.next_scanline < cinfo.image_height) {    当扫描的下一行未超出图像的高时，表明还有未扫描完的scanline
+           	 	row_pointer[0] = &image_buffer[cinfo.next_scanline * row_stride];    将数组指针指向要扫描的scanline的buffer地址
+           		jpeg_write_scanlines(&cinfo, row_pointer, 1);	将数组指针指向的图像buffer和压缩参数传入jpeg_write_scanlines进行压缩写入
+       	 	}
+	jpeg_write_scanlines（）返回实际写入的scanlines数。这通常等于传入的数字，因此通常可以忽略返回值。只有两种情况不同：
+	   *如果尝试写入的scanline多于声明的图像高度，则会忽略其他scanline。
+   	   *如果使用挂起的data destination manager，输出缓冲区溢出将导致压缩器在接受所有传递的行之前返回。此功能将在下面的“I/O suspension”中讨论。正常的stdio目标管理器不会导致这种情况发生。
+	在任何情况下，返回值都与下一条扫描线的值变化相同。
+    (6).jpeg_finish_compress(...);压缩完成
+	所有图像数据写入后，调用jpeg_finish_compress（）完成压缩循环。此步骤对于确保将数据的最后一次缓冲加载写入data destination至关重要。jpeg_finish_compress（）还会释放与jpeg对象关联的工作内存。
+	典型代码：
+		jpeg_finish_compress(&cinfo);
+	如果使用stdio目标管理器，不要忘记在之后关闭输出stdio流。
+	在写入所需的扫描线总数之前调用jpeg_finish_compress（）是一个错误。如果要中止压缩，请调用jpeg_abort（），如下所述。
+	完成压缩周期后，可以按下面的讨论处理JPEG对象，也可以使用它压缩另一个图像。在这种情况下，返回步骤2、3或4（视情况而定）。如果不更改目标管理器，则新数据流将写入同一目标。如果不更改任何JPEG参数，则将写入新的数据流。参数和以前一样。请注意，可以在周期之间自由更改输入图像尺寸，但如果更改输入颜色空间，则应调用jpeg_set_defaults（）来调整新的颜色空间；然后需要重复所有步骤3。
+    (7).释放JPEG压缩对象
+	使用完JPEG压缩对象后，请通过调用JPEG_destroy_compress（）来销毁它。这将释放所有辅助内存（不管对象的前一个状态如何）。或者可以调用jpeg_destroy（），它可以用于压缩或解压对象——如果在压缩和解压案例之间共享代码，这可能更方便。
+	典型代码：
+		peg_destroy_compress(&cinfo);
+     (8).终止
+	如果在完成之前决定中止压缩循环，可以通过以下两种方式之一进行清理：
+	a.如果不再需要JPEG对象:
+		只需调用jpeg_destroy_compress（）或jpeg_destroy（）释放内存。这在调用jpeg_create_compress（）之后的任何时候都是合法的——事实上，即使jpeg_create_compress（）失败，它也是安全的。
+	b.如果要重新使用JPEG对象:
+		调用JPEG_abort_compress（），或调用JPEG_abort（），它对压缩和解压缩对象都有效。这将使对象返回空闲状态，释放任何工作内存。在成功创建对象后，任何时候都允许jpeg_abort（）
+
+3.JPEG解压详解：
+   (1).分配并初始化JPEG解压缩对象
+	这就像上面讨论的压缩初始化一样,除了对象是“struct jpeg_decompress_struct”并调用jpeg_create_decompress（）。错误处理完全相同。
+	典型代码:
+		struct jpeg_decompress_struct cinfo; 		定义JPEG解压对象
+        	struct jpeg_error_mgr jerr;			定义错误处理消息
+        	...
+       		cinfo.err = jpeg_std_error(&jerr);		错误处理消息填充给对象
+        	jpeg_create_decompress(&cinfo);			初始化解压对象其余部分
+    (2).指定压缩数据的源
+	如前所述，JPEG库从“数据源”模块读取压缩数据。该库包括一个数据源模块，该模块知道如何从stdio流中读取数据。如果您想做其他事情，可以使用自己的源模块，如后文所述。如果使用标准源模块，则必须事先打开源stdio流。此步骤的典型代码如下：
+	      	FILE *infile;		定义一个文件
+        	...
+        	if ((infile = fopen(filename, "rb")) == NULL) {
+			fprintf(stderr, "can't open %s\n", filename); 打开文件
+            		exit(1);
+        	}
+        	jpeg_stdio_src(&cinfo, infile); 使用标准数据源函数将JPEG解压对象和文件关联
+	您不能在调用jpeg_read_header（）和jpeg_finish_decompress（）之间更改数据源。如果要从单个源文件中读取一系列JPEG图像，应重复jpeg_read_header（）到jpeg_finish_decompress（）流程，而不重新初始化JPEG对象或数据源模块；这将防止丢弃缓冲的输入数据。
+    (3).调用jpeg_read_header（）获取图像信息
+	典型代码:
+		jpeg_read_header(&cinfo, TRUE);
+	这将读取源数据流头标记，直到压缩数据正确开始。返回时，图像尺寸和其他信息已存储在JPEG解压对象中。在选择解压参数之前，应用程序可能希望先查阅此信息。
+	如果您只想找出JPEG文件的图像尺寸和其他头信息，则可以在此点停止。在这种情况下，在处理完jpeg对象后，请调用jpeg_destroy（），或调用jpeg_abort（）将其返回到空闲状态，然后再选择新的数据源并读取另一个头。
+    (4).设置解压参数
+	jpeg_read_header（）根据图像的属性（特别是其颜色空间）设置适当的默认解压缩参数。但是，在开始解压缩之前，您可能需要更改这些默认值
+	如果默认值合适，则此步骤无需执行任何操作.
+	请注意，所有默认值都是通过每次调用jpeg_read_header（）来设置的.如果重用解压对象，则不能期望参数设置跨周期保留，因为可以进行压缩。每次都必须设置所需的参数值。
+    (5).jpeg_start_decompress(...);开始解压
+	参数值满足要求后，调用jpeg_start_decompress（）开始解压缩。这将初始化内部状态，分配工作内存，并准备返回数据。
+	典型代码:
+		jpeg_start_decompress(&cinfo);
+	在这个调用之后，JPEG对象中提供了最终输出图像尺寸，包括任何请求的缩放；如果请求了颜色映射输出，则选定的颜色映射也是如此。
+	有用的字段包括:
+		output_width;		输出图像的宽
+		output_height;		输出图像的高
+		out_color_components;	外部色彩分量
+		output_components;	每个像素输出的色彩分量
+		colormap;		色彩映射
+		actual_number_of_colors;实际的色彩数
+	量化颜色时，output_components是1（颜色映射索引）；否则，它等于out_color_components。它是输出数组中每个像素将发出的JSAMPLE值的数目。
+	通常需要分配buffer来保存传入的图像。输出buffer大小 = 输出图像的宽 × 每个scanline的输出分量(也就是一个像素所占的字节)×输出图像的高
+	注意：如果使用JPEG库的内部内存管理器来分配数据缓冲区（如djpeg所做的），则管理器的协议要求在调用JPEG启动解压缩之前请求大缓冲区。这有点棘手，因为输出字段通常不有效。设置相关参数（缩放、输出颜色空间和量化标志）后，可以通过调用jpeg_calc_output_dimensions（）使其有效。
+    (6).while (scan lines remain to be read)
+         jpeg_read_scanlines(...);  循环读取scanline
+	现在您可以通过调用jpeg_read_scanlines（）一次或多次来读取解压缩的图像数据。每次调用时，都会传入要读取的最大scanline数（即，工作缓冲区的高度）；jpeg_read_scanlines（）将返回到该行数。返回值是实际读取的行数。返回数据的格式在上面的“数据格式”下讨论。别忘了灰度和彩色JPEG会返回不同的数据格式！
+	图像数据按从上到下的scanline顺序返回。如果必须按从下到上的顺序写出图像，则可以使用JPEG库的虚拟数组机制有效地反转数据。
+	该库在JPEG对象的output_scanline字段中维护到目前为止返回的scanline数的计数。通常您可以将此变量用作循环计数器.
+	如果使用的缓冲区大于一个scanline，则假设jpeg_read_scanlines（）填充缓冲区是不安全的。（当前实现每次调用只返回几个scanline，不管传递的缓冲区有多大。）因此，必须始终提供循环，反复调用jpeg_read_scanlines（），直到读取整个图像。
+    (7).jpeg_finish_decompress(...);完成解压
+	读取所有图像数据后，调用jpeg_finish_decompress（）完成解压缩循环。这将导致释放与JPEG对象关联的工作内存。
+	典型代码:
+		jpeg_finish_decompress(&cinfo);
+	如果使用stdio源管理器，请不要忘记在必要时关闭源stdio流。
+	在读取正确的扫描线总数之前调用jpeg_finish_decompress（）是一个错误。如果要中止解压缩，请调用jpeg_abort（），如下所述。
+    (8).释放JPEG解压对象资源
+	处理完JPEG解压缩对象后，通过调用JPEG_destroy_decompress（）或JPEG_destroy（）将其销毁。前面关于销毁压缩对象的讨论也适用于这里。
+	典型代码:
+		jpeg_destroy_decompress(&cinfo);
+    (9).中止:
+	如果不再需要jpeg对象，可以通过调用jpeg_destroy_decompress（）或jpeg_destroy（）来中止解压缩循环；如果要重用该对象，可以调用jpeg_abort_decompress（）或jpeg_abort（）。前面关于中止压缩周期的讨论也适用于这里。
+
+
+4.部分图像解压
+	部分图像解压对于性能关键的应用程序非常方便，这些应用程序只希望查看大型JPEG图像的一部分，而不希望对整个图像进行解压。它在内存受限的环境（如移动设备上）中也很有用。
+	(1).解压时跳过行：
+		jpeg_skip_scanlines(j_decompress_ptr cinfo, JDIMENSION num_lines);
+		此函数使应用程序程序员能够跳过JPEG图像中的多行。此函数不支持挂起数据源。使用挂起的数据源调用jpeg_skip_scanlines（）将导致未定义的行为。jpeg_skip_scanlines（）不允许跳过图像底部。如果num_line的值足够大，可以跳过图像的底部，则函数将跳到图像的末尾。如果num_lines的值有效，则jpeg_skip_scanlines（）将始终跳过请求的所有输入行。在这种情况下，不需要检查函数的返回值。对大的行块调用jpeg_skip_scanlines（）将获得最佳结果。该函数应被视为一种快速跳转到JPEG图像中特定垂直偏移的方法，以便解码图像的子集。以这种方式使用，它将提供显著的性能改进。
+	(2).解压部分scanline:
+		jpeg_crop_scanline (j_decompress_ptr cinfo, JDIMENSION *xoffset,JDIMENSION *width)
+		此函数使应用程序程序员能够仅解压缩JPEG图像中每行的一部分。它必须在jpeg_start_decompress（）之后和调用jpeg_read_scanlines（）或jpeg_skip_scanlines（）之前调用。如果xoffset(解压的部分scanline)和width不构成图像行的有效子集，则此函数将生成错误。注意，如果输出图像是缩放的，那么xoffset和width是相对于缩放图像尺寸的。xoffset和width通过引用传递，因为xoffset必须落在iMCU边界上。如果没有，则将其左移到最近的iMCU边界，宽度将相应增加。如果调用程序不喜欢调整后的xoffset和width值，则可以使用新值再次调用jpeg_crop_scanline（）（例如，如果它希望将xoffset移到最接近的iMCU边界（而不是左边界）。调用此函数后，cinfo->output_width将设置为调整后的宽度。在分配输出缓冲区以传递到jpeg_read_scanlines（）时，应使用此值。
+
+5.使用机制：
+	使用JPEG库的应用程序应包含头文件jpeglib.h，以获取数据类型和例程的声明。在包含jpeglib.h之前，请先包含至少定义了typedefs文件和ANSI兼容系统上的大小的系统头，包括<stdio.h>就足够了；在旧的Unix系统上，可能需要<sys/types.h>来定义大小。
+	如果应用程序需要引用单独的JPEG库错误代码，还需要包含jerror.h来定义这些符号。
+	jpeglib.h间接包含jconfig.h和jmorecfg.h文件。如果要在系统目录中安装JPEG头文件，则需要安装所有四个文件：jpeglib.h、jerror.h、jconfig.h、jmorecfg.h。
+	将JPEG代码包含到可执行程序中最方便的方法是准备库文件（“libjpeg.a”，或非Unix计算机上的相应名称）并在链接步骤中引用它。如果您只使用了库的一半（仅压缩或仅解压缩），那么只有那么多代码将包含在库中，提供的makefile会自动生成libjpeg.a（请参见install.txt）。
+	您可以将JPEG库构建为共享库，但我们并不建议您这样做。共享库的问题在于，在某些时候，您可能会尝试在不重新编译调用应用程序的情况下替换库的新版本。这通常不起作用，每个新的版本的更新可能会更新参数结构。换句话说，库的API是不保证二进制的跨版本兼容；我们只试图确保源代码的兼容性。（事后看来，对应用程序隐藏参数结构并引入大量访问函数可能更明智。不过，现在太迟了。）
+	值得指出的是，核心JPEG库实际上并不需要stdio库：只有默认的源/目标管理器和错误处理程序需要它。如果您替换这些模块并使用jmennobs.c（或您自己设计的另一个内存管理器），则可以在无stdio环境中使用该库。有关最低系统库要求的更多信息可以在jinclude.h中找到。
+
+
+三、高级功能：(后续补充)
+
+四、文档索引：
+	BUILDING.md ：libjpeg源码编译指导
+	libjpeg最后编译完成得到4类产品：
+		1.libjpeg.a：libjpeg的静态库
+		2.libjpeg.so.{version}：libjpeg的动态库  ---libjpeg.so是它的符号链接
+		3.libturbojpeg.a： libturbojpeg的静态库
+		4.libturbojpeg.so.0.2.0: libturbojpeg的动态库 ---libturbojpeg.so是他的符号链接
+	example.txt:libjpeg使用案例
+		
+	
+
+
+
+		
+
+	
+
+
+
+
+
+
+
+
+
+

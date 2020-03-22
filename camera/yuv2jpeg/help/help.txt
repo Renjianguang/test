@@ -1,0 +1,7 @@
+一、什么是libJPEG
+libjpeg-turbo是JPEG图像编解码器.使用SIMD指令(同时对一条指令进行多次同步执行)在各类系统上加速JPEG压缩和解压。
+libjoeg-turbo包含了传统多libjpeg的api，又实现了turbojpegAPI,还提供了java接口
+
+1.NASM/YASM ：汇编编译器
+2.cmake:跨平台编译工具,用于生成项目的MakeFile文件,进而使用make命令生成最后的目标
+
