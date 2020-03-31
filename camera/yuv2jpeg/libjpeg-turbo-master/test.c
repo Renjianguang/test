@@ -2,7 +2,13 @@
 #include <stdio.h>
 #include <jpeglib.h>
 #include <jerror.h>
-#include <custom_define.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
 int yuv420sp_to_jpg(char *filename, int width, int height, unsigned char *pYUVBuffer)
 {
     FILE *fJpg;
@@ -44,7 +50,7 @@ int yuv420sp_to_jpg(char *filename, int width, int height, unsigned char *pYUVBu
 
     jpeg_start_compress(&cinfo, TRUE);
     row_stride = cinfo.image_width * 3; /* JSAMPLEs per row in image_buffer */
-    
+
     pY = pYUVBuffer;
     pU = pYUVBuffer + width*height;
     pV = pYUVBuffer + width*height + ulen;
@@ -84,21 +90,22 @@ int yuv420sp_to_jpg(char *filename, int width, int height, unsigned char *pYUVBu
 }
 
 int main(int argc,char* argv[]){
-	unsigned char* pyuv = (char*)malloc(4*388800);
-	int fd =open(argv[1],O_RDONLY | O_CREAT,S_IRUSR | S_IWUSR);
-	if (!fd) {
-		printf("open src file error!");
-		return 1;
-	}
-	int size = read(fd,pyuv,4*388800);
-	if (size == -1) {
-		printf("read frome src file error!");
-		return 2;
-	}
-	int ret = yuv420sp_to_jpg(argv[2],960,540,pyuv);
-	if (ret == -1) {
-		printf("yuv420sp_to_jpg error!");
-		return 3;
-	}
-	return 0;
+    int m_size = atoi(argv[3]) * atoi(argv[4]) * 6;
+    unsigned char* pyuv = (char*)malloc(m_size);
+    int fd =open(argv[1],O_RDONLY | O_CREAT,S_IRUSR | S_IWUSR);
+    if (!fd) {
+        printf("open src file error!");
+        return 1;
+    }
+    int r_size = read(fd,pyuv,m_size);
+    if (r_size == -1) {
+        printf("read frome src file error!");
+        return 2;
+    }
+    int ret = yuv420sp_to_jpg(argv[2],atoi(argv[3]),atoi(argv[4]),pyuv);
+    if (ret == -1) {
+        printf("yuv420sp_to_jpg error!");
+        return 3;
+    }
+    return 0;
 }
