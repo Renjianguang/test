@@ -1,0 +1,43 @@
+shell笔记:
+1.shell函数的使用
+函数定义：
+fun(){
+	函数体
+	return n
+}
+
+注意：ruturn可以没有，ruturn后面加数字作为函数的返回值
+函数的使用:
+定义和使用无先后顺序
+func 参数1 参数2 ...
+
+函数内：
+$@代表所有传入函数的参数
+$1 代表第一个参数
+$2 代表第二个参数
+。。。
+
+
+shell中各类括号的作用：详见brackets.sh
+shell中的循环：
+for a in array
+do
+	...
+done
+
+while 条件
+do
+	...
+done
+
+shell中的case:
+case a in
+   A)
+	...;;
+   B)
+	...;;
+   C)
+	...;;
+esac
+
+
