@@ -281,7 +281,13 @@
 	编译完成之后，可以使用make test测试生成的库的各项功能是否正常。
 
 
-example.txt:libjpeg使用案例：可以与libjpeg文档结合使用	
+example.txt:libjpeg使用案例：可以与libjpeg文档结合使用 
+
+usege.txt:
+用法：
+两个核心的文件
+	cjpeg.c 将其他格式文件压缩为jpeg格式
+	djpeg.c 将jpeg文件解压缩为其他格式
 		
 		
 	

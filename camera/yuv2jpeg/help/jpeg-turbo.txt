@@ -1,0 +1,4 @@
+jpeg-turbo是对libjpeg的封装，提供了更方便的，集成度更高的接口
+源码文件：Turbojpeg.c 提供了多个方便用户使用的接口，这些接口的最终实现还是libjpeg的实现
+
+
