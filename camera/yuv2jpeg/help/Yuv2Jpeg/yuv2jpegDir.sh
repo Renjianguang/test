@@ -33,7 +33,7 @@ mkdir -p ${out_dir}
 for i in ${files[*]}
 do
     echo " ================================================================\n"
-    echo "./binary/64/yuv2jpeg --infile ${in_dir}/$i --inwidth ${in_width} --inheight ${in_height} --instride ${in_stride} --inscanline ${in_scanline} --infmt ${fmt} --outfile $out_dir/$i.jpeg"
-    ./binary/64/yuv2jpeg --infile ${in_dir}/$i --inwidth ${in_width} --inheight ${in_height} --instride ${in_stride} --inscanline ${in_scanline} --infmt ${fmt} --outfile $out_dir/$i.jpeg
+    echo "./yuv2jpeg --infile ${in_dir}/$i --inwidth ${in_width} --inheight ${in_height} --instride ${in_stride} --inscanline ${in_scanline} --infmt ${fmt} --outfile $out_dir/$i.jpeg"
+    ./yuv2jpeg --infile ${in_dir}/$i --inwidth ${in_width} --inheight ${in_height} --instride ${in_stride} --inscanline ${in_scanline} --infmt ${fmt} --outfile $out_dir/$i.jpeg
     echo "\n ================================================================ \n\n"
 done

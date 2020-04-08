@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "turbojpeg.h"
-#include "libyuv.h"
+#include <turbojpeg.h>
+//#include "libyuv.h"
 
 #define ALIGN(x,a)    (((x)+(a)-1)&~(a-1))
 
@@ -53,13 +53,23 @@ int formatyuv(char *buf, char *y, char *u, char *v, inyuvfmt_t in_fmt, uint32_t 
     uint32_t y_plan_size = ALIGN(in_stride * in_scanline, 4*1024);
     //uint32_t y_plan_size = in_stride * in_scanline;
     printf("y_plan_size: %u\n", y_plan_size);
-    if (in_fmt == IN_YUVNV12) {
+   /* if (in_fmt == IN_YUVNV12) {
         SplitUVPlane((uint8 *)y_plan+y_plan_size, in_stride, (uint8 *)u, in_stride, (uint8 *)v, in_stride, in_width, in_height);
     } else if (in_fmt == IN_YUVNV21) {
         SplitUVPlane((uint8 *)y_plan+y_plan_size, in_stride, (uint8 *)v, in_stride, (uint8 *)u, in_stride, in_width, in_height);
-    }
+    }*/
     for (int i = 0; i < (int)in_height; i++) {
         memcpy(y + (i * in_width), y_plan + (i * in_stride), in_width);
+    }
+    char *p = u,*q = v;
+    for (int i = 0; i < (int)(in_height/2); i++) {
+        for (int j = 0; j < (int)in_width; j++) {
+            if (j%2 == 0){
+                memcpy(p++, y_plan + ((in_height + i) * in_stride) + j,1);
+            }else{
+                memcpy(q++, y_plan + ((in_height + i) * in_stride) + j,1);
+            }
+        }
     }
     return 0;
 }
