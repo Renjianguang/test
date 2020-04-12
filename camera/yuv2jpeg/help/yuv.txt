@@ -1,0 +1,12 @@
+yuv图像有三个分量：
+	Y:灰度(亮度)分量
+	U:色度分量
+	V:色度分量
+YUV格式有两大类：planar(1.semi-planar(2平面) 2.planar(3平面))和packed
+对于planar的YUV格式，先连续存储所有像素点的Y，紧接着存储所有像素点的U，随后是所有像素点的V。
+NV12和NV21属于YUV420格式，是一种two-plane模式，即Y和UV分为两个Plane，但是UV（CbCr）为交错存储，而不是分为三个plane。其提取方式与上一种类似，即Y'00、Y'01、Y'10、Y'11共用Cr00、Cb00
+对于packed的YUV格式，每个像素点的Y,U,V是连续交*存储的
+
+
+stride:stride指在内存中每行像素所占的空间= width + padding
+
