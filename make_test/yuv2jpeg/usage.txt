@@ -1,0 +1,2 @@
+usage:
+yuv2jpeg [inputfile] [outdir] [width] [height]
